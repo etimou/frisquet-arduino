@@ -11,7 +11,7 @@
 
   To send a command to the boiler : publish Mode,Value on topic inTopic (e.g. 3,20 for Comfort Mode and Heating value 20)
 
-  To receive the water temperature : subcribe the outTopic topic. It makes use of a ds18b2O sensor. 
+  To receive the water temperature : subcribe the outTopic topic. It makes use of a ds18b20 sensor. 
 
 */
 /********************************************************************/
@@ -40,7 +40,10 @@ byte bitstuff = 0;
 byte heatingValue = 0;
 byte preHeatingValue = 0;
 int delayCycleMsg =  60000; //report temperature every minute
-int delayCycleCmd = 240000; // send a command every 4 minutes
+int delayCycleCmdInit = 240000; // send a command every 4 minutes
+int delayCycleCmdPreheat = 20000; // delay preheat
+int delayCycleCmdMQTTMax = 900000; // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
+int delayCycleCmd=delayCycleCmdInit; // init
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
@@ -55,6 +58,7 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
 long lastCmd = 0;
+long lastCmdMQTT = 0;
 char msg[50];
 int value = 0;
 
@@ -156,13 +160,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
   strToken = strtok ( NULL, "," );
   heatingValue = atoi(strToken);
 
-
-
   if ((heatingValue <= 100) and ((preHeatingValue == 0) or (preHeatingValue == 3) or (preHeatingValue == 4))) {
 
     commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
     lastCmd = millis();
-    delayCycleCmd = 20000;
+    lastCmdMQTT = now;
+    delayCycleCmd = delayCycleCmdPreheat;
   }
 
 
@@ -298,9 +301,10 @@ void loop() {
 
   }
   if (now - lastCmd > delayCycleCmd) {
-
-    commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+     if (now - lastCmdMQTT < delayCycleCmdMQTTMax) {
+        commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+     }
     lastCmd = now;
-    delayCycleCmd = 240000;
+    delayCycleCmd = delayCycleCmdInit;
   }
 }
