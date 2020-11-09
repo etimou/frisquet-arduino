@@ -45,11 +45,8 @@ int delayCycleCmd; //  This variable contains the delay for the next command to 
 #define DELAY_REPEAT_CMD 20000 // when a new command is issued, it is repeated after this delay (20s)
 #define DELAY_TIMEOUT_CMD_MQTT 900000 // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
 #define DELAY_CYCLE_MSG 60000 // reports temperature every minute
-int delayCycleCmd=DELAY_CYCLE_CMD_INIT // init
-int delayCycleCmdInit = 240000; // send a command every 4 minutes
-int delayCycleCmdPreheat = 20000; // delay preheat
-int delayCycleCmdMQTTMax = 900000; // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
-int delayCycleCmd=delayCycleCmdInit; // init
+delayCycleCmd=DELAY_CYCLE_CMD_INIT // init
+
 
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
@@ -263,9 +260,6 @@ void setup() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
-
-
-
 }
 
 void loop() {
@@ -283,7 +277,7 @@ void loop() {
 
 
   long now = millis();
-  if (now - lastMsg > delayCycleMsg) {
+  if (now - lastMsg > DELAY_CYCLE_MSG) {
     // call sensors.requestTemperatures() to issue a global temperature
     // request to all devices on the bus
     /********************************************************************/
@@ -307,10 +301,10 @@ void loop() {
 
   }
   if (now - lastCmd > delayCycleCmd) {
-     if (now - lastCmdMQTT < delayCycleCmdMQTTMax) {
+     if (now - lastCmdMQTT < DELAY_TIMEOUT_CMD_MQTT) {
         commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
      }
     lastCmd = now;
-delayCycleCmd = DELAY_CYCLE_CMD;
+    delayCycleCmd = DELAY_CYCLE_CMD;
   }
 }
