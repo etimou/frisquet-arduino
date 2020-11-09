@@ -1,5 +1,5 @@
 /*
- * 
+
   Frisquet - MQTT
   This sketch allows communication between an esp8266 and a Frisquet heating boiler.
   The esp8266 replaces the original Eco Radio System receiver.
@@ -7,11 +7,11 @@
   Wiring :
   ESP8266              BOILER
   D2 (configurable)    yellow wire
-  Gnd                  black wire 
+  Gnd                  black wire
 
   To send a command to the boiler : publish Mode,Value on topic inTopic (e.g. 3,20 for Comfort Mode and Heating value 20)
 
-  To receive the water temperature : subcribe the outTopic topic. It makes use of a ds18b20 sensor. 
+  To receive the water temperature : subcribe the outTopic topic. It makes use of a ds18b20 sensor.
 
 */
 /********************************************************************/
@@ -43,9 +43,9 @@ int delayCycleCmd; //  This variable contains the delay for the next command to 
 #define DELAY_CYCLE_CMD 240000 // delay between 2 commands (4min)
 #define DELAY_CYCLE_CMD_INIT 240000// delay for the 1st command after startup (4min)
 #define DELAY_REPEAT_CMD 20000 // when a new command is issued, it is repeated after this delay (20s)
-#define DELAY_TIMEOUT_CMD_MQTT 900000 // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
+#define DELAY_TIMEOUT_CMD_MQTT 900000 // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote) - 0 to deactivate
 #define DELAY_CYCLE_MSG 60000 // reports temperature every minute
-delayCycleCmd=DELAY_CYCLE_CMD_INIT // init
+
 
 
 #include <ESP8266WiFi.h>
@@ -167,8 +167,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
     lastCmd = millis();
-    lastCmdMQTT = now;
-delayCycleCmd = DELAY_REPEAT_CMD;
+    lastCmdMQTT = lastCmd;
+    delayCycleCmd = DELAY_REPEAT_CMD;
   }
 
 
@@ -215,6 +215,7 @@ void setup() {
   pinMode(ERS_pin, OUTPUT);
   digitalWrite(ERS_pin, LOW);
   digitalWrite(LED_BUILTIN, LOW);
+  delayCycleCmd = DELAY_CYCLE_CMD_INIT; // init
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
@@ -301,9 +302,9 @@ void loop() {
 
   }
   if (now - lastCmd > delayCycleCmd) {
-     if (now - lastCmdMQTT < DELAY_TIMEOUT_CMD_MQTT) {
-        commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
-     }
+    if ((now - lastCmdMQTT < DELAY_TIMEOUT_CMD_MQTT) || (DELAY_TIMEOUT_CMD_MQTT == 0)) {
+      commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+    }
     lastCmd = now;
     delayCycleCmd = DELAY_CYCLE_CMD;
   }
