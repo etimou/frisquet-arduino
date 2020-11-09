@@ -39,7 +39,13 @@ byte bitstuff = 0;
 
 byte heatingValue = 0;
 byte preHeatingValue = 0;
-int delayCycleMsg =  60000; //report temperature every minute
+int delayCycleCmd; //  This variable contains the delay for the next command to the boiler (if no command is received via MQTT)
+#define DELAY_CYCLE_CMD 240000 // delay between 2 commands (4min)
+#define DELAY_CYCLE_CMD_INIT 240000// delay for the 1st command after startup (4min)
+#define DELAY_REPEAT_CMD 20000 // when a new command is issued, it is repeated after this delay (20s)
+#define DELAY_TIMEOUT_CMD_MQTT 900000 // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
+#define DELAY_CYCLE_MSG 60000 // reports temperature every minute
+int delayCycleCmd=DELAY_CYCLE_CMD_INIT // init
 int delayCycleCmdInit = 240000; // send a command every 4 minutes
 int delayCycleCmdPreheat = 20000; // delay preheat
 int delayCycleCmdMQTTMax = 900000; // 15min Max delay without Mqtt msg ---PROTECTION OVERHEATING ---- (Same as remote)
