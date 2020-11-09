@@ -171,7 +171,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     commande(preHeatingValue, heatingValue);  // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
     lastCmd = millis();
     lastCmdMQTT = now;
-    delayCycleCmd = delayCycleCmdPreheat;
+delayCycleCmd = DELAY_REPEAT_CMD;
   }
 
 
