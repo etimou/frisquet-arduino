@@ -72,10 +72,13 @@ void loop() {
           message = 0;
         }
       } else {
-        trame[0] = "";
-        trame[1] = "";
-        trame[2] = "";
-        message = 0;
+       	// Re-initialise la trame s'il n'y avait pas de données juste avant      
+        if ((message == 0) || (trame[message-1].length() < 200)) { 
+          trame[0] = "";
+          trame[1] = "";
+          trame[2] = "";
+          message = 0;
+        }      
       }
     }
     data_dispo = false;
