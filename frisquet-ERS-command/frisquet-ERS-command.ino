@@ -1,6 +1,16 @@
-byte ERS_pin = 3;
+
+#define PIN_BSF_0                   22                                          // Board Specific Function lijn-0
+#define PIN_BSF_1                   23                                          // Board Specific Function lijn-1
+#define PIN_BSF_2                   24                                          // Board Specific Function lijn-2
+#define PIN_BSF_3                   25                                          // Board Specific Function lijn-3
+#define PIN_RF_TX_VCC               15                                          // +5 volt / Vcc power to the transmitter on this pin
+#define PIN_RF_TX_DATA              14                                          // Data to the 433Mhz transmitter on this pin
+#define PIN_RF_RX_VCC               16                                          // Power to the receiver on this pin
+#define PIN_RF_RX_DATA              19                                          // On this input, the 433Mhz-RF signal is received. LOW when no signal.
+
+byte ERS_pin = PIN_RF_TX_DATA;//3;
 int long_pulse = 825;
-byte message[17] = {0x00, 0x00, 0x00, 0x3F, 0x9F, 0xE7, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x00};
+byte message[17] = {0x00, 0x00, 0x00, 0x58, 0x0C, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x00};
 byte old_state, num_byte;
 byte bitstuff = 0;
 
@@ -55,11 +65,18 @@ void commande(byte prechauffage, byte chauffage) {
 }
 
 void setup() {
+  pinMode(PIN_RF_RX_DATA, INPUT);                                               // Initialise in/output ports
+  pinMode(PIN_RF_TX_DATA, OUTPUT);                                              // Initialise in/output ports
+  pinMode(PIN_RF_TX_VCC,  OUTPUT);                                              // Initialise in/output ports
+  pinMode(PIN_RF_RX_VCC,  OUTPUT);                                              // Initialise in/output ports    
+  digitalWrite(PIN_RF_RX_VCC,HIGH);                                             // turn VCC to RF receiver ON
+  digitalWrite(PIN_RF_RX_DATA,INPUT_PULLUP);                                    // pull-up resister on (to prevent garbage)
+  
   pinMode(ERS_pin, OUTPUT);
   digitalWrite(ERS_pin, LOW);
 }
 
 void loop() {
-  commande(0,0);   // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+  commande(3,30);   // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
   delay(240000);  // boucle toutes les 4 minutes
 }
