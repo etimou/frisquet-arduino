@@ -1,7 +1,18 @@
+
+
+#define PIN_BSF_0                   22                                          // Board Specific Function lijn-0
+#define PIN_BSF_1                   23                                          // Board Specific Function lijn-1
+#define PIN_BSF_2                   24                                          // Board Specific Function lijn-2
+#define PIN_BSF_3                   25                                          // Board Specific Function lijn-3
+#define PIN_RF_TX_VCC               15                                          // +5 volt / Vcc power to the transmitter on this pin
+#define PIN_RF_TX_DATA              14                                          // Data to the 433Mhz transmitter on this pin
+#define PIN_RF_RX_VCC               16                                          // Power to the receiver on this pin
+#define PIN_RF_RX_DATA              19                                          // On this input, the 433Mhz-RF signal is received. LOW when no signal.
+
 volatile long duration = 0;
 volatile long prev_time = 0;
 volatile boolean data_dispo = false;
-byte input = 3;
+byte input = PIN_RF_RX_DATA;//3;
 String trame[3];
 byte message = 0;
 byte start = true;
@@ -9,7 +20,16 @@ byte intro = 0;
 String prefixe = "1100";
  
 void setup() {
-  Serial.begin(500000);
+  Serial.begin(57600);
+  pinMode(PIN_RF_RX_DATA, INPUT);                                               // Initialise in/output ports
+  pinMode(PIN_RF_TX_DATA, OUTPUT);                                              // Initialise in/output ports
+  pinMode(PIN_RF_TX_VCC,  OUTPUT);                                              // Initialise in/output ports
+  pinMode(PIN_RF_RX_VCC,  OUTPUT);                                              // Initialise in/output ports    
+  digitalWrite(PIN_RF_RX_VCC,HIGH);                                             // turn VCC to RF receiver ON
+  digitalWrite(PIN_RF_RX_DATA,INPUT_PULLUP);                                    // pull-up resister on (to prevent garbage)
+  
+  pinMode(PIN_BSF_0,OUTPUT);                                                    // rflink board switch signal
+  digitalWrite(PIN_BSF_0,HIGH);                                                 // rflink board switch signal
   attachInterrupt(digitalPinToInterrupt(input), declenche, CHANGE);
 }
  
