@@ -51,12 +51,18 @@ void loop() {
               }
 
               // repartition en bytes
-              String id1 = sortie.substring(0,8);
-              String id2 = sortie.substring(8,16);
-              String id3 = sortie.substring(16,24);
+              byte id1 = convert(sortie.substring(0,8));
+              byte id2 = convert(sortie.substring(8,16));
+              byte id3 = convert(sortie.substring(16,24));
               byte num = convert(sortie.substring(48,56));
               byte prechauff = convert(sortie.substring(56,64));
               byte chauffage = convert(sortie.substring(64,72));
+              Serial.print("ID: ");
+              Serial.print(id1, HEX);
+              Serial.print("-");
+              Serial.print(id2, HEX);
+              Serial.print("-");
+              Serial.println(id3, HEX);
               Serial.print("num: ");
               Serial.println(num);
               Serial.print("prechauff: ");
