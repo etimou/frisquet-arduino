@@ -274,6 +274,7 @@ void loop() {
   if (!client.connected()) {
     reconnect();
   }
+  delay(10);    // required to have both MQTT & ArduinoOTA working together
   client.loop();
 
 
