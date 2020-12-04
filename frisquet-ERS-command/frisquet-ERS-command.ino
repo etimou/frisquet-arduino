@@ -1,4 +1,6 @@
+#include <SerialTerminal.hpp>
 
+// Defining PINs
 #define PIN_BSF_0                   22                                          // Board Specific Function lijn-0
 #define PIN_BSF_1                   23                                          // Board Specific Function lijn-1
 #define PIN_BSF_2                   24                                          // Board Specific Function lijn-2
@@ -8,11 +10,13 @@
 #define PIN_RF_RX_VCC               16                                          // Power to the receiver on this pin
 #define PIN_RF_RX_DATA              19                                          // On this input, the 433Mhz-RF signal is received. LOW when no signal.
 
-byte ERS_pin = PIN_RF_TX_DATA;//3;
+// Variables
+byte ERS_pin = PIN_RF_TX_DATA;
 int long_pulse = 825;
-byte message[17] = {0x00, 0x00, 0x00, 0x58, 0x0C, 0x00, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x00};
+byte message[17] = {0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x00};
 byte old_state, num_byte;
 byte bitstuff = 0;
+maschinendeck::SerialTerminal* term;
 
 void pulse (byte state) {
   digitalWrite(ERS_pin, state);
@@ -64,6 +68,31 @@ void commande(byte prechauffage, byte chauffage) {
   }
 }
 
+void ERS_command(String opts) {
+  maschinendeck::Pair<String, String> operands = maschinendeck::SerialTerminal::ParseCommand(opts);
+  int mode = operands.first().toInt();
+  Serial.print("Mode ");
+  switch (mode) {
+    case 0:
+      Serial.println("reduit");
+      break;
+    case 3:
+      Serial.println("confort");
+      break;
+    case 4:
+      Serial.println("hors gel");
+      break;
+    default:
+      Serial.println("inconnu");
+  }
+  
+  Serial.print("Temperature deau ");
+  Serial.print(operands.second());
+  Serial.print(" degre(s)");
+  
+  commande(mode,operands.second().toInt());   // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+}
+
 void setup() {
   pinMode(PIN_RF_RX_DATA, INPUT);                                               // Initialise in/output ports
   pinMode(PIN_RF_TX_DATA, OUTPUT);                                              // Initialise in/output ports
@@ -74,9 +103,12 @@ void setup() {
   
   pinMode(ERS_pin, OUTPUT);
   digitalWrite(ERS_pin, LOW);
+ 
+  term = new maschinendeck::SerialTerminal(57600);
+  term->add("ERS", &ERS_command, "ERS mode heat\nmode : 1=Reduit, 3=Confort, 4=Hors gel\nheat : Température de chauffage entre 0 et 100");
 }
 
+
 void loop() {
-  commande(3,30);   // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
-  delay(240000);  // boucle toutes les 4 minutes
+ term->loop();
 }
