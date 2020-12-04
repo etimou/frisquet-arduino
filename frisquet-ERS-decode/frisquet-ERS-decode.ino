@@ -71,24 +71,49 @@ void loop() {
               }
 
               // repartition en bytes
-              byte id1 = convert(sortie.substring(0,8));
-              byte id2 = convert(sortie.substring(8,16));
-              byte id3 = convert(sortie.substring(16,24));
-              byte num = convert(sortie.substring(48,56));
-              byte prechauff = convert(sortie.substring(56,64));
-              byte chauffage = convert(sortie.substring(64,72));
+              byte id1 = convert(sortie.substring(0,8)); // byte 3
+              byte id2 = convert(sortie.substring(8,16)); // byte 4
+              byte id3 = convert(sortie.substring(16,24)); // byte 5
+              byte num = convert(sortie.substring(48,56)); // byte 9 (repeat)
+              byte prechauff = convert(sortie.substring(56,64)); // byte 10 (pre-heated) 0=Reduit, 3=Confort, 4=Hors gel
+              byte chauffage = convert(sortie.substring(64,72)); // Heating
+              byte battery = convert(sortie.substring(72,80)); // Battery
+              Serial.print("Message #");
+              Serial.println(num);
               Serial.print("ID: ");
               Serial.print(id1, HEX);
               Serial.print("-");
               Serial.print(id2, HEX);
               Serial.print("-");
               Serial.println(id3, HEX);
-              Serial.print("num: ");
-              Serial.println(num);
-              Serial.print("prechauff: ");
-              Serial.println(prechauff);
-              Serial.print("chauffage: ");
+              Serial.print("Mode : ");
+              prechauff &= 0x0F;
+              switch (prechauff) {
+                case 0:
+                  Serial.println("Réduit");
+                  break;
+                case 3:
+                  Serial.println("Confort");
+                  break;
+                case 4:
+                  Serial.println("Hors gel");
+                  break;
+                default:
+                  Serial.print("Inconnu (");
+                  Serial.print(prechauff);
+                  Serial.println(")");
+              } 
+              Serial.print("Température eau : ");
               Serial.println(chauffage);
+              Serial.print("Batterie : ");
+              if (battery > 0)
+                Serial.println("LOW");
+              else
+                Serial.println("OK");
+              if (num > 1)
+                Serial.println("##########");
+              else
+                Serial.println("----------");
               intro = 0;
             }
           }  
