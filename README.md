@@ -5,3 +5,9 @@ Flash RFLink hardware to be able to decode or encode Frisquet Eco Radio System p
 
 Tested successfully on models:
 - Hydromotrix
+
+# Usage
+
+Using Arduino IDE, load inside RFLink hardware :
+- frisquet-ERS-decode to decode ERS protocol and retrieve the ID of your boiler
+- frisquet-ERS-command to command your boiler using ERS protocol (don't forget to set the ID of your boiler)
