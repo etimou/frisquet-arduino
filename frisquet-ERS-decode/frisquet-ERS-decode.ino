@@ -158,7 +158,7 @@ String convert_binary_string_to_hex_string(String data) {
       if (data.substring((x*8)+f,(x*8)+f+1) == "1")
         bitSet(hex, f);
     }
-    if (hex <= 0x0A)
+    if (hex <= 0x0F)
       sortie += "0";
     sortie += String(hex, HEX);
   }
