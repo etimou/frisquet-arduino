@@ -22,6 +22,8 @@ void setup() {
   digitalWrite(PIN_RF_RX_VCC,HIGH);                                             // turn VCC to RF receiver ON
   digitalWrite(PIN_RF_RX_DATA,INPUT_PULLUP);                                    // pull-up resister on (to prevent garbage)c
   attachInterrupt(digitalPinToInterrupt(input), declenche, CHANGE);
+  pinMode (LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
 }
  
 void loop() {
@@ -52,6 +54,7 @@ void loop() {
             }
             String sortie = "";
             if (intro > 6 ) {
+              digitalWrite(LED_BUILTIN, HIGH);
               // décodage des bits de la trame: 00=0, 11=0, 10=1, 01=1
               for (int x = (intro*4); x <= trame[message].length(); x=x+2) {
                 if ((trame[message].substring(x,x+2) == "00") or (trame[message].substring(x,x+2) == "11")) {
@@ -106,6 +109,7 @@ void loop() {
               else
                 Serial.println("----------");
               intro = 0;
+              digitalWrite(LED_BUILTIN, LOW);
             }
           }  
           trame[0] = "";
