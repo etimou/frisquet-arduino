@@ -1,10 +1,5 @@
 #include <SerialTerminal.hpp>
 
-// Defining PINs
-#define PIN_BSF_0                   22                                          // Board Specific Function lijn-0
-#define PIN_BSF_1                   23                                          // Board Specific Function lijn-1
-#define PIN_BSF_2                   24                                          // Board Specific Function lijn-2
-#define PIN_BSF_3                   25                                          // Board Specific Function lijn-3
 #define PIN_RF_TX_VCC               15                                          // +5 volt / Vcc power to the transmitter on this pin
 #define PIN_RF_TX_DATA              14                                          // Data to the 433Mhz transmitter on this pin
 #define PIN_RF_RX_VCC               16                                          // Power to the receiver on this pin
@@ -13,34 +8,36 @@
 // Variables
 byte ERS_pin = PIN_RF_TX_DATA;
 int long_pulse = 825;
-byte message[17] = {0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x00};
+byte message[17] = {0x00, 0x00, 0x00, 0x7E, 0xFF, 0xFF, 0x00, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFD, 0x00, 0xFF, 0x80};
 byte old_state, num_byte;
 byte bitstuff = 0;
 maschinendeck::SerialTerminal* term;
 
-void pulse (byte state) {
-  digitalWrite(ERS_pin, state);
+void writeBit(bool Bit) {
+  old_state = !old_state;
+  digitalWrite(ERS_pin, old_state);
+  delayMicroseconds(long_pulse);
+
+  if (Bit) {
+    old_state = !old_state;
+    digitalWrite(ERS_pin, old_state);
+  }
   delayMicroseconds(long_pulse);
 }
 
 void conversion(byte input) {
   for (byte n = 0; n < 8; n++) { // boucle pour chaque bit
-    if (bitRead(input, n) == 1) bitstuff++;  // incrémente le compteur bitstuffing
-    if ((bitstuff > 5) && (num_byte > 9) && (num_byte < 15)) { // bitstuffing bit 10 à 14
-      pulse(!old_state);
-      pulse(!old_state);
-      old_state = !old_state;
+    writeBit(bitRead(input, n));
+    if (num_byte >= 4 && num_byte <= 14) {
+      if (bitRead(input, n) == 1)
+        bitstuff++;  // incrémente le compteur bitstuffing
+    }
+    if (bitRead(input, n) == 0)
+      bitstuff = 0;
+    if (bitstuff >= 5) {
+      writeBit(0);
       bitstuff = 0;
     }
-
-    pulse(!old_state);
-    if (bitRead(input, n) == 1) {
-      old_state = !old_state;
-    } else {
-      bitstuff = 0;
-    }
-    pulse(!old_state);
-    old_state = !old_state;
   }
 }
 
@@ -55,11 +52,26 @@ void commande(byte prechauffage, byte chauffage) {
         message[10] = prechauffage + 0x80;
       }
       message[11] = chauffage;
-      message[14] = 0x13B-message[9]-message[10]-message[11]-message[12];
+      
+      int checksum = 0;
+      for (int i = 4; i <= 12; i++) {
+        checksum -= message[i];
+      }
+      message[13] = highByte(checksum);
+      message[14] = lowByte(checksum);
+
+      Serial.println("Trame envoyée : ");
+      for (byte i = 1; i <= 16; i++) {
+        if (message[i] <= 0x0F)
+          Serial.print("0");
+        Serial.print(message[i], HEX);
+      }
+      
+      Serial.println("");
       for (num_byte = 1; num_byte < 17; num_byte++) { // boucle de 16 bytes
         conversion(message[num_byte]);
       }
-      digitalWrite(ERS_pin, HIGH);
+      digitalWrite(ERS_pin, LOW);
       delay(33);
     }
     digitalWrite(ERS_pin, LOW);
@@ -69,43 +81,49 @@ void commande(byte prechauffage, byte chauffage) {
 }
 
 void ERS_command(String opts) {
+  digitalWrite(LED_BUILTIN, HIGH);
   maschinendeck::Pair<String, String> operands = maschinendeck::SerialTerminal::ParseCommand(opts);
   int mode = operands.first().toInt();
-  Serial.print("Mode ");
+  Serial.print("Mode : ");
   switch (mode) {
     case 0:
-      Serial.println("reduit");
+      Serial.println("Réduit");
       break;
     case 3:
-      Serial.println("confort");
+      Serial.println("Confort");
       break;
     case 4:
-      Serial.println("hors gel");
+      Serial.println("Hors gel");
       break;
     default:
-      Serial.println("inconnu");
+      Serial.print("Inconnu (");
+      Serial.print(mode);
+      Serial.println(")");
   }
   
-  Serial.print("Temperature deau ");
+  Serial.print("Température d'eau ");
   Serial.print(operands.second());
-  Serial.print(" degre(s)");
+  Serial.println(" degré(s)");
   
   commande(mode,operands.second().toInt());   // reduit 0, confort 3, hors gel 4, chauffage 0 à 100
+  Serial.print("Commande envoyée");
+  digitalWrite(LED_BUILTIN, LOW);
 }
 
 void setup() {
   pinMode(PIN_RF_RX_DATA, INPUT);                                               // Initialise in/output ports
+  pinMode(PIN_RF_RX_VCC,  OUTPUT);                                              // Initialise in/output ports
   pinMode(PIN_RF_TX_DATA, OUTPUT);                                              // Initialise in/output ports
   pinMode(PIN_RF_TX_VCC,  OUTPUT);                                              // Initialise in/output ports
-  pinMode(PIN_RF_RX_VCC,  OUTPUT);                                              // Initialise in/output ports    
   digitalWrite(PIN_RF_RX_VCC,HIGH);                                             // turn VCC to RF receiver ON
+  digitalWrite(PIN_RF_TX_VCC,HIGH);                                             // turn VCC to RF transmitter ON
   digitalWrite(PIN_RF_RX_DATA,INPUT_PULLUP);                                    // pull-up resister on (to prevent garbage)
-  
-  pinMode(ERS_pin, OUTPUT);
   digitalWrite(ERS_pin, LOW);
+  pinMode (LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
  
   term = new maschinendeck::SerialTerminal(57600);
-  term->add("ERS", &ERS_command, "ERS mode heat\nmode : 1=Reduit, 3=Confort, 4=Hors gel\nheat : Température de chauffage entre 0 et 100");
+  term->add("ERS", &ERS_command, "ERS mode heat\nmode : 0=Reduit, 3=Confort, 4=Hors gel\nheat : Température de chauffage entre 0 et 100");
 }
 
 
