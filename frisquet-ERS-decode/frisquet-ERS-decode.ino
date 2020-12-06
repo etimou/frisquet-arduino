@@ -1,3 +1,6 @@
+// A commenter pour avoir la trame brute. 
+#define STUFFING_MNG
+
 volatile long duration = 0;
 volatile long prev_time = 0;
 volatile boolean data_dispo = false;
@@ -41,12 +44,21 @@ void loop() {
             }
             String sortie = "";
             if (intro > 6 ) {
+             
+              byte nbOne = 0;
+             
               // décodage des bits de la trame: 00=0, 11=0, 10=1, 01=1
               for (int x = (intro*4); x <= trame[message].length(); x=x+2) {
                 if ((trame[message].substring(x,x+2) == "00") or (trame[message].substring(x,x+2) == "11")) {
+#ifdef STUFFING_MNG                  
+                  if (nbOne != 5) sortie = sortie + "0";    // gestion du Stuffing pour tous les octets de la trame
+#else
                   sortie = sortie + "0";
+#endif                   
+                  nbOne = 0;
                 } else {
                   sortie = sortie + "1";
+                  nbOne ++;
                 }
               }
 
