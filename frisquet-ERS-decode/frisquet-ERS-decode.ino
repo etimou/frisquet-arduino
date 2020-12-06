@@ -63,6 +63,9 @@ void loop() {
                   sortie = sortie + "1";
                 }
               }
+              String sortie_hex = convert_binary_string_to_hex_string(sortie);
+              Serial.print("Trame reçue :");
+              Serial.println(sortie_hex);
 
               // repartition en bytes
               byte id1 = convert(sortie.substring(0,8)); // byte 3
@@ -143,4 +146,20 @@ byte convert(String entree) {
     if (entree.substring(f,f+1) == "1") bitSet(result, f);
   }
 return result;
+}
+
+String convert_binary_string_to_hex_string(String data) {
+  String sortie = "";
+  for (int x = 0; x < (data.length()/8);x++) {
+    byte hex = 0;
+    for (int f = 0; f <= 7 ; f++) {
+      if (data.substring((x*8)+f,(x*8)+f+1) == "1")
+        bitSet(hex, f);
+    }
+    if (hex <= 0x0A)
+      sortie += "0";
+    sortie += String(hex, HEX);
+  }
+  sortie.toUpperCase();
+  return sortie;
 }
