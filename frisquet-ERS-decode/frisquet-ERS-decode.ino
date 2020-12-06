@@ -52,10 +52,10 @@ void loop() {
                 break;
               }
             }
-            String sortie = "";
             if (intro > 6 ) {
               digitalWrite(LED_BUILTIN, HIGH);
               // décodage des bits de la trame: 00=0, 11=0, 10=1, 01=1
+              String sortie = "";
               for (int x = (intro*4); x <= trame[message].length(); x=x+2) {
                 if ((trame[message].substring(x,x+2) == "00") or (trame[message].substring(x,x+2) == "11")) {
                   sortie = sortie + "0";
@@ -63,6 +63,8 @@ void loop() {
                   sortie = sortie + "1";
                 }
               }
+              String sortie_without_bitstuff = remove_bitstuff(sortie);
+              sortie = sortie_without_bitstuff;
               String sortie_hex = convert_binary_string_to_hex_string(sortie);
               Serial.print("Trame reçue :");
               Serial.println(sortie_hex);
@@ -161,5 +163,23 @@ String convert_binary_string_to_hex_string(String data) {
     sortie += String(hex, HEX);
   }
   sortie.toUpperCase();
+  return sortie;
+}
+
+String remove_bitstuff(String data) {
+  // The protocol uses bit-stuffing => remove 0 bit after five consecutive 1 bits
+  // Also, each byte is represented with least significant bit first -> swap them!
+  String sortie = "";
+  int ones = 0;
+  for (uint16_t k = 0; k < data.length(); k++) {
+    if (data[k] == '1') {
+      sortie += "1";
+      ones++;
+    } else {
+      if (ones != 5) // Ignore a 0 bit after five consecutive 1 bits:
+        sortie += "0";
+      ones = 0;
+    }
+  }
   return sortie;
 }
