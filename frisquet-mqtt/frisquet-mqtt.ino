@@ -107,7 +107,6 @@ void commande(byte prechauffage, byte chauffage) {
 
   if ((chauffage <= 100) and ((prechauffage == 0) or (prechauffage == 3) or (prechauffage == 4))) {
     for (byte x = 0; x < 3; x++) { // boucle de 3 messages
-      {
         old_state = 0;
         message[9] = x;  // numero message : 0 à 2
         if (x == 2) {
