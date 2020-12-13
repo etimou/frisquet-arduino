@@ -2,8 +2,6 @@
 
 #define PIN_RF_TX_VCC               15                                          // +5 volt / Vcc power to the transmitter on this pin
 #define PIN_RF_TX_DATA              14                                          // Data to the 433Mhz transmitter on this pin
-#define PIN_RF_RX_VCC               16                                          // Power to the receiver on this pin
-#define PIN_RF_RX_DATA              19                                          // On this input, the 433Mhz-RF signal is received. LOW when no signal.
 
 // Variables
 byte ERS_pin = PIN_RF_TX_DATA;
@@ -66,7 +64,6 @@ void commande(byte prechauffage, byte chauffage) {
           Serial.print("0");
         Serial.print(message[i], HEX);
       }
-      
       Serial.println("");
       for (num_byte = 1; num_byte < 17; num_byte++) { // boucle de 16 bytes
         conversion(message[num_byte]);
@@ -111,13 +108,9 @@ void ERS_command(String opts) {
 }
 
 void setup() {
-  pinMode(PIN_RF_RX_DATA, INPUT);                                               // Initialise in/output ports
-  pinMode(PIN_RF_RX_VCC,  OUTPUT);                                              // Initialise in/output ports
   pinMode(PIN_RF_TX_DATA, OUTPUT);                                              // Initialise in/output ports
   pinMode(PIN_RF_TX_VCC,  OUTPUT);                                              // Initialise in/output ports
-  digitalWrite(PIN_RF_RX_VCC,HIGH);                                             // turn VCC to RF receiver ON
   digitalWrite(PIN_RF_TX_VCC,HIGH);                                             // turn VCC to RF transmitter ON
-  digitalWrite(PIN_RF_RX_DATA,INPUT_PULLUP);                                    // pull-up resister on (to prevent garbage)
   digitalWrite(ERS_pin, LOW);
   pinMode (LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, LOW);
