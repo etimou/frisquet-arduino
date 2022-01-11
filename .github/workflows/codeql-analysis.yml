@@ -23,7 +23,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
