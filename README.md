@@ -13,3 +13,10 @@ Using Arduino IDE, load inside RFLink hardware :
 - frisquet-ERS-command to command your boiler using ERS protocol (don't forget to set the ID of your boiler)
 
 Setup tutorial (in French) : https://github.com/ChristopheHD/frisquet-arduino/wiki/Installation
+
+# Support
+
+You can have help :
+- On this github
+- On this thread (French only) : http://easydomoticz.com/forum/viewtopic.php?f=17&t=1486
+- On this community (mention @ChristopheHD) : https://community.jeedom.com/
