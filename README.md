@@ -8,7 +8,7 @@ Tested successfully on models:
 
 # Usage
 
-Using Arduino IDE, load inside RFLink hardware :
+Using Arduino IDE, load inside RFLink 433.42 Mhz hardware :
 - frisquet-ERS-decode to decode ERS protocol and retrieve the ID of your boiler
 - frisquet-ERS-command to command your boiler using ERS protocol (don't forget to set the ID of your boiler)
 
