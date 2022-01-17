@@ -17,4 +17,4 @@ command = "ERS " + modes.get(mode, "0") + " " + str(int(temperature)) + "\n\r"
 arduino = serial.Serial(port="/dev/ttyUSB1", baudrate=57600, timeout=1, writeTimeout=1)
 time.sleep(1)
 arduino.write(command.encode('utf-8'))
-          
+arduino.close()
