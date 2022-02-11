@@ -111,7 +111,7 @@ void ERS_command(String opts) {
 }
 
 void setup() {
-  / set the Aurel transceiver to RX mode
+  // set the Aurel transceiver to RX mode
   pinMode(TRANSCEIVER_MODE_PIN, OUTPUT);
   digitalWrite(TRANSCEIVER_MODE_PIN, TRANSCEIVER_TX);
 
