@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# argv[1] is the temperature we want in percent (min 23 - max 100)
+# argv[1] is the temperature we want in percent
 # argv[2] is the mode in french : Eco, Confort, Hors gel
 
 import sys
