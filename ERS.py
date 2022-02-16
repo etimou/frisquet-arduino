@@ -6,10 +6,10 @@ import sys
 import time
 import serial
 
-puissance = sys.argv[1]
+puissance = float(sys.argv[1])
 temperature = 0
 if puissance > 0:
-	temperature = 20+0.7*float(puissance)
+	temperature = 20+0.7*puissance
 
 mode = sys.argv[2]
 modes = { "Eco":"0", "Confort":"3", "Hors gel":"4"}
