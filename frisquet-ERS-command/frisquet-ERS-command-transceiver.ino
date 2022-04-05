@@ -1,6 +1,6 @@
 #include <SerialTerminal.hpp>
 
-#define TRANSCEIVER_RX_PIN      19    // Set the pin that receives data from your 433.42 Mhz Receiver
+#define TRANSCEIVER_RX_PIN      14    // Set the pin that receives data from your 433.42 Mhz Receiver
 #define TRANSCEIVER_MODE_PIN    15    // Aurel transceivers have a pin that let the hardware switch to RX and TX mode
 #define TRANSCEIVER_ENABLE_PIN  22    // Aurel transceivers have a pin that must be set to HIGH to enable the transmitter
 #define TRANSCEIVER_TX HIGH
