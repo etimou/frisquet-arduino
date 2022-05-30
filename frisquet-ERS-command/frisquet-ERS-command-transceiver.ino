@@ -134,13 +134,13 @@ void loop() {
           nbTerme++ ;
           switch (mode.toInt()) {
             case 0: 
-              modeTexte = "Hors Gel" ;
+              modeTexte = "Réduit" ;
               break ;
             case 3:
               modeTexte = "Confort" ;
               break ;
             case 4:
-              modeTexte = "Eco" ;
+              modeTexte = "Hors gel" ;
               break ;            
           }
           break ;  
