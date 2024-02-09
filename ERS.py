@@ -16,7 +16,7 @@ modes = { "Eco":"0", "Confort":"3", "Hors gel":"4"}
 
 command = "ERS " + modes.get(mode, "0") + " " + str(int(temperature)) + "\n\r"
 
-arduino = serial.Serial(port="/dev/ttyUSB1", baudrate=57600, timeout=1, writeTimeout=1)
+arduino = serial.Serial(port="/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0", baudrate=57600, timeout=1, writeTimeout=1)
 time.sleep(1)
 arduino.write(command.encode('utf-8'))
 arduino.close()
